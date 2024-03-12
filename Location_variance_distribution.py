@@ -7,7 +7,6 @@ import seaborn as sns
 
 data = 'clean_russia_losses_equipment.csv'
 clean_data = pd.read_csv(data)
-print(clean_data.head())
 
 #calculate arithmetic mean for each column except the first one
 mean = statistics.mean(clean_data['APC'])
@@ -107,3 +106,14 @@ plt.show()
 
 
 #change date to days of the week and plot the losses per day of the week using a histogram for drone losses
+
+
+#plot a graph with vertical lines to show the mean, median and mode of the APC losses
+sns.kdeplot(apc, shade=True)
+plt.axvline(mean, color='red', label='mean')
+plt.axvline(geometric_mean, color='green', label='geometric mean')
+plt.axvline(harmonic_mean, color='blue', label='harmonic mean')
+plt.title('APC losses central tendency')
+plt.xlabel('APC')
+plt.ylabel('count')
+plt.legend()
