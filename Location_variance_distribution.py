@@ -7,6 +7,12 @@ import seaborn as sns
 
 data = 'clean_russia_losses_equipment.csv'
 clean_data = pd.read_csv(data)
+print(clean_data.head())
+
+#add a column to the data that shows the day of the week for each date, in column 2
+clean_data['date'] = pd.to_datetime(clean_data['date'])
+clean_data['day of week'] = clean_data['date'].dt.day_name()
+
 
 #calculate arithmetic mean for each column except the first one
 mean = statistics.mean(clean_data['APC'])
@@ -32,7 +38,7 @@ median = statistics.median(apc)
 print('APC median:', median)
 
 #Calculate the variance for the APC column
-variance = statistics.variance(apc)
+variance = statistics.variance(clean_data['APC'])
 print('APC variance:', variance)
 
 #Calculate the standard deviation for the APC column
@@ -40,7 +46,7 @@ standard_deviation = statistics.stdev(apc)
 print('APC standard deviation:', standard_deviation)
 
 #plot the location variance distribution
-plt.hist(apc, bins=100, edgecolor='black')
+plt.hist(apc, bins=10, edgecolor='black')
 plt.title('APC losses')
 plt.xlabel('APC')
 plt.ylabel('count')
@@ -49,71 +55,82 @@ plt.show()
 #This means that the majority of the losses are small and a few are large
 #This is consistent with the high variance and standard deviation values
 
-sns.kdeplot(apc, shade=True)
-plt.title('APC losses')
-plt.xlabel('APC')
-plt.ylabel('Density')
-plt.show()
-
-
-#plot the relationship between apc losses and tank losses
-sns.scatterplot(x='day', y='aircraft', data=clean_data)
-plt.title('aircraft losses vs day')
-plt.xlabel('day')
-plt.ylabel('aircraft')
-plt.show()
-
-
-fig = plt.figure()
-#create figure with 6 subplots
-fig, axs = plt.subplots(2, 3)
-fig.suptitle('Losses vs day')
-#plot the relationship between apc losses and day
-axs[0, 0].plot(clean_data['day'], clean_data['APC'])
-axs[0, 0].set_title('APC')
-#plot the relationship between tank losses and day
-axs[0, 1].plot(clean_data['day'], clean_data['tank'])
-axs[0, 1].set_title('tank')
-#plot the relationship between aircraft losses and day
-axs[0, 2].plot(clean_data['day'], clean_data['aircraft'])
-axs[0, 2].set_title('aircraft')
-#plot the relationship between helicopter losses and day
-axs[1, 0].plot(clean_data['day'], clean_data['helicopter'])
-axs[1, 0].set_title('helicopter')
-#plot the relationship between MRL losses and day
-axs[1, 1].plot(clean_data['day'], clean_data['naval ship'])
-axs[1, 1].set_title('naval ship ')
-#plot the relationship between drone losses and day
-axs[1, 2].plot(clean_data['day'], clean_data['drone'])
-axs[1, 2].set_title('drone')
-plt.show()
 
 #plot the violin plot for the distribution of losses
-sns.violinplot(data=clean_data['aircraft'])
+sns.violinplot(data=clean_data['APC'],orient='h')
 plt.title('Losses distribution')
 plt.show()
 
-#plot the box plot for the distribution of losses
-sns.boxplot(data=clean_data['aircraft'])
-plt.title('Losses distribution')
-plt.show()
 
 #plot the box plot for the distribution of losses with strip plot
-sns.boxplot(data=clean_data['aircraft'])
-sns.stripplot(data=clean_data['aircraft'], color='red')
+sns.boxplot(data=clean_data['APC'],orient='h',  whis=1.5)
 plt.title('Losses distribution')
 plt.show()
+ 
 
-
-#change date to days of the week and plot the losses per day of the week using a histogram for drone losses
-
+#plot the sum of losses for each day of the week
+day_of_week = clean_data['day of week']
+losses = clean_data['APC']
+day_loss = dict(zip(day_of_week, losses))
+day_loss = Counter(day_loss)
+print(day_loss)
+plt.bar(day_loss.keys(), day_loss.values())
+plt.title('APC losses by day of the week')
+plt.xlabel('Day of the week')
+plt.ylabel('APC')
+plt.show()
 
 #plot a graph with vertical lines to show the mean, median and mode of the APC losses
 sns.kdeplot(apc, shade=True)
 plt.axvline(mean, color='red', label='mean')
+plt.axvline(median, color='yellow', label='median')
 plt.axvline(geometric_mean, color='green', label='geometric mean')
 plt.axvline(harmonic_mean, color='blue', label='harmonic mean')
 plt.title('APC losses central tendency')
 plt.xlabel('APC')
 plt.ylabel('count')
 plt.legend()
+plt.show()
+
+sns.kdeplot(apc, shade=True)
+plt.axvline(mode, color='black', label='mode')
+plt.title('APC losses central tendency')
+plt.xlabel('APC')
+plt.ylabel('count')
+plt.legend()
+plt.show()
+
+#calculate correlation between the losses and aircraft losses
+correlation = clean_data['APC'].corr(clean_data['aircraft'])
+print('Correlation between APC and aircraft losses:', correlation)
+
+#calculate the covariance between the losses and aircraft losses
+covariance = clean_data['APC'].cov(clean_data['aircraft'])
+print('Covariance between APC and aircraft losses:', covariance)
+
+plt.hist(clean_data['aircraft'], bins=10, edgecolor='black')
+plt.title('Aircraft losses')
+plt.xlabel('aircraft')
+plt.ylabel('count')
+plt.show()
+
+
+
+#plot the scatter plot for the losses and aircraft losses
+plt.scatter(clean_data['APC'], clean_data['aircraft'])
+plt.title('APC losses vs aircraft losses')
+plt.xlabel('APC')
+plt.ylabel('aircraft')
+plt.show()
+
+#create a figure with 2 subplots to show the distribution of losses and aircraft losses
+fig, ax = plt.subplots(1,2)
+ax[0].hist(clean_data['APC'], bins=30, edgecolor='black')
+ax[0].set_title('APC losses')
+ax[0].set_xlabel('APC')
+ax[0].set_ylabel('count')
+ax[1].hist(clean_data['aircraft'], bins=30, edgecolor='black')
+ax[1].set_title('Aircraft losses')
+ax[1].set_xlabel('aircraft')
+ax[1].set_ylabel('count')
+plt.show()
