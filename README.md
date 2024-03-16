@@ -1,2 +1,2 @@
 # Explorative-Data-Analysis-and-visualization
-Ways to exploit and analyze data
+Techniques for analyzing and visualizing data
