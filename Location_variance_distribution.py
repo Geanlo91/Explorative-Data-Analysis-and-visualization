@@ -16,28 +16,26 @@ print(clean_data.head())
 
 
 
-
-
-#calculate arithmetic mean for each column except the first one
+#calculating arithmetic mean for each column except the first one
 mean = statistics.mean(clean_data['APC'])
 print('APC arithmetic mean:', mean)
 
-#calcculate geometric mean for the APC column
+#calculating geometric mean for the APC column
 #first, remove the zeros
 apc = clean_data['APC']
 apc = [x for x in apc if x != 0]
 geometric_mean = statistics.geometric_mean(apc)
 print('APC geometric mean:', geometric_mean)
 
-#Calculate the harmonic mean for the APC column
+#Calculating the harmonic mean for the APC column
 harmonic_mean = statistics.harmonic_mean(apc)
 print('APC harmonic mean:', harmonic_mean)
 
-#Calculate the mode for the APC column
+#Calculating the mode for the APC column
 mode = statistics.mode(apc)
 print('APC mode:', mode)
 
-#Calculate the median for the APC column
+#Calculating the median for the APC column
 median = statistics.median(apc)
 print('APC median:', median)
 
@@ -45,34 +43,31 @@ print('APC median:', median)
 variance = statistics.variance(clean_data['APC'])
 print('APC variance:', variance)
 
-#Calculate the standard deviation for the APC column
+#Calculating the standard deviation for the APC column
 standard_deviation = statistics.stdev(apc)
 print('APC standard deviation:', standard_deviation)
 
-#plot the location variance distribution
+#plotting the location variance distribution
 plt.hist(apc, bins=10, edgecolor='black')
 plt.title('APC losses')
 plt.xlabel('APC')
 plt.ylabel('count')
 plt.show()
-#The plot shows that the distribution of APC losses is skewed to the right
-#This means that the majority of the losses are small and a few are large
-#This is consistent with the high variance and standard deviation values
 
 
-#plot the violin plot for the distribution of losses
+#plotting the violin plot for the distribution of losses
 sns.violinplot(data=clean_data['APC'],orient='h')
 plt.title('Losses distribution')
 plt.show()
 
 
-#plot the box plot for the distribution of losses with strip plot
+#plotting the box plot for the distribution of losses with strip plot
 sns.boxplot(data=clean_data['APC'],orient='h',  whis=1.5)
 plt.title('Losses distribution')
 plt.show()
 
 
-#plot a graph with vertical lines to show the mean, median and mode of the APC losses
+#plotting a graph with vertical lines to show the mean, median and mode of the APC losses
 sns.kdeplot(apc, shade=True)
 plt.axvline(mean, color='red', label='mean')
 plt.axvline(median, color='yellow', label='median')
@@ -85,11 +80,11 @@ plt.ylabel('density')
 plt.legend()
 plt.show()
 
-#calculate correlation between the losses and aircraft losses
+#calculating correlation between the losses and aircraft losses
 correlation = clean_data['APC'].corr(clean_data['aircraft'])
 print('Correlation between APC and aircraft losses:', correlation)
 
-#calculate the covariance between the losses and aircraft losses
+#calculating the covariance between the losses and aircraft losses
 covariance = clean_data['APC'].cov(clean_data['aircraft'])
 print('Covariance between APC and aircraft losses:', covariance)
 
@@ -101,14 +96,14 @@ plt.show()
 
 
 
-#plot the scatter plot for the losses and aircraft losses
+#plotting the scatter plot for the losses and aircraft losses
 plt.scatter(clean_data['APC'], clean_data['aircraft'])
 plt.title('APC losses vs aircraft losses')
 plt.xlabel('APC')
 plt.ylabel('aircraft')
 plt.show()
 
-#create a figure with 2 subplots to show the distribution of losses and aircraft losses
+#creatng a figure with 2 subplots to show the distribution of losses and aircraft losses
 fig, ax = plt.subplots(1,2)
 ax[0].hist(clean_data['APC'], bins=30, edgecolor='black')
 ax[0].set_title('APC losses')
@@ -120,13 +115,13 @@ ax[1].set_xlabel('aircraft')
 ax[1].set_ylabel('count')
 plt.show()
 
-#plot heatmap to show the correlation between the APC losses and aircraft losses
+#plotting heatmap to show the correlation between the APC losses and aircraft losses
 correlation_matrix = clean_data.corr()
 sns.heatmap(correlation_matrix)
 plt.title('Correlation matrix')
 plt.show()
 
-#plot distribution of losses with mean and different standard deviation intervals
+#plotting distribution of losses with mean and different standard deviation intervals
 sns.kdeplot(apc, shade=True)
 plt.axvline(mean, color='red', label='mean')
 plt.axvline(mean+standard_deviation, color='yellow', label='+1 std')
@@ -142,7 +137,7 @@ plt.ylabel('density')
 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 plt.show()
 
-#plot sum of APC losses by day of the week and moth in a figure with 2 subplots with month and day of week ordered to start from January and Monday respectively
+#plotting sum of APC losses by day of the week and moth in a figure with 2 subplots with month and day of week ordered to start from January and Monday respectively
 order_day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 order_month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 fig, ax = plt.subplots(1,3,gridspec_kw={'width_ratios': [2, 2, 3]})
@@ -160,7 +155,7 @@ ax[2].set_title('losses by month')
 ax[2].set_xticklabels(ax[2].get_xticklabels(), rotation=90)
 ax[2].set_xlabel('month')
 ax[2].set_ylabel('sum of APC losses')
-#plot losses in January per day of the week
+#ploting losses in January per day of the week
 january = clean_data[clean_data['month']=='January']
 sns.barplot(x='day of week', y='APC', data=january, estimator=sum, ci=None, order=order_day, ax=ax[1])
 ax[1].set_title('Jan losses')
@@ -185,9 +180,8 @@ ax.set_ylabel('APC')
 ax.set_title('Min & Max losses by month')
 #rotate the x-axis labels
 ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
-#add a color bar
+#color bar
 cbar = plt.colorbar(scatter)
 cbar.set_label('APC')
 plt.show()
 
-#plot losses of each variable in the data in a horizontal bar chart
