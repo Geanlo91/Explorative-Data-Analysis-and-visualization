@@ -7,11 +7,15 @@ import seaborn as sns
 
 data = 'clean_russia_losses_equipment.csv'
 clean_data = pd.read_csv(data)
-print(clean_data.head())
-
 #add a column to the data that shows the day of the week for each date, in column 2
 clean_data['date'] = pd.to_datetime(clean_data['date'])
 clean_data['day of week'] = clean_data['date'].dt.day_name()
+#add a column to the data that shows the month for each date, in column 3
+clean_data['month'] = clean_data['date'].dt.month_name()
+print(clean_data.head())
+
+
+
 
 
 #calculate arithmetic mean for each column except the first one
@@ -66,19 +70,7 @@ plt.show()
 sns.boxplot(data=clean_data['APC'],orient='h',  whis=1.5)
 plt.title('Losses distribution')
 plt.show()
- 
 
-#plot the sum of losses for each day of the week
-day_of_week = clean_data['day of week']
-losses = clean_data['APC']
-day_loss = dict(zip(day_of_week, losses))
-day_loss = Counter(day_loss)
-print(day_loss)
-plt.bar(day_loss.keys(), day_loss.values())
-plt.title('APC losses by day of the week')
-plt.xlabel('Day of the week')
-plt.ylabel('APC')
-plt.show()
 
 #plot a graph with vertical lines to show the mean, median and mode of the APC losses
 sns.kdeplot(apc, shade=True)
@@ -86,17 +78,10 @@ plt.axvline(mean, color='red', label='mean')
 plt.axvline(median, color='yellow', label='median')
 plt.axvline(geometric_mean, color='green', label='geometric mean')
 plt.axvline(harmonic_mean, color='blue', label='harmonic mean')
-plt.title('APC losses central tendency')
-plt.xlabel('APC')
-plt.ylabel('count')
-plt.legend()
-plt.show()
-
-sns.kdeplot(apc, shade=True)
 plt.axvline(mode, color='black', label='mode')
 plt.title('APC losses central tendency')
 plt.xlabel('APC')
-plt.ylabel('count')
+plt.ylabel('density')
 plt.legend()
 plt.show()
 
@@ -134,3 +119,75 @@ ax[1].set_title('Aircraft losses')
 ax[1].set_xlabel('aircraft')
 ax[1].set_ylabel('count')
 plt.show()
+
+#plot heatmap to show the correlation between the APC losses and aircraft losses
+correlation_matrix = clean_data.corr()
+sns.heatmap(correlation_matrix)
+plt.title('Correlation matrix')
+plt.show()
+
+#plot distribution of losses with mean and different standard deviation intervals
+sns.kdeplot(apc, shade=True)
+plt.axvline(mean, color='red', label='mean')
+plt.axvline(mean+standard_deviation, color='yellow', label='+1 std')
+plt.axvline(mean-standard_deviation, color='yellow', label='-1 std')
+plt.axvline(mean+2*standard_deviation, color='green', label='+2 std')
+plt.axvline(mean-2*standard_deviation, color='green', label='-2 std')
+plt.axvline(mean+3*standard_deviation, color='blue', label='+3 std')
+plt.axvline(mean-3*standard_deviation, color='blue', label='-3 std')
+plt.title('APC losses distribution with mean and standard deviation intervals')
+plt.xlabel('APC')
+plt.ylabel('density')
+#plot legend outside the plot
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.show()
+
+#plot sum of APC losses by day of the week and moth in a figure with 2 subplots with month and day of week ordered to start from January and Monday respectively
+order_day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+order_month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+fig, ax = plt.subplots(1,3,gridspec_kw={'width_ratios': [2, 2, 3]})
+#title for the figure
+fig.suptitle('Losses vs time')
+sns.barplot(x='day of week', y='APC', data=clean_data, estimator=sum, ci=None, order=order_day, ax=ax[0])
+ax[0].set_title('losses by day of the week')
+#rotate the x-axis labels
+ax[0].set_xticklabels(ax[0].get_xticklabels(), rotation=90)
+ax[0].set_xlabel('day of week')
+ax[0].set_ylabel('sum of APC losses')
+sns.barplot(x='month', y='APC', data=clean_data, estimator=sum, ci=None, order=order_month, ax=ax[2])
+ax[2].set_title('losses by month')
+#rotate the x-axis labels
+ax[2].set_xticklabels(ax[2].get_xticklabels(), rotation=90)
+ax[2].set_xlabel('month')
+ax[2].set_ylabel('sum of APC losses')
+#plot losses in January per day of the week
+january = clean_data[clean_data['month']=='January']
+sns.barplot(x='day of week', y='APC', data=january, estimator=sum, ci=None, order=order_day, ax=ax[1])
+ax[1].set_title('Jan losses')
+ax[1].set_ylabel('sum of APC losses')
+#rotate the x-axis labels
+ax[1].set_xticklabels(ax[1].get_xticklabels(), rotation=90)
+plt.tight_layout()
+plt.show()
+ 
+#piechart to show the distribution of losses by month
+losses_by_month = clean_data.groupby('month')['APC'].sum()
+losses_by_month = losses_by_month.reindex(order_month)
+plt.pie(losses_by_month, labels=losses_by_month.index, autopct='%1.1f%%')
+plt.title('APC losses by month')
+plt.show()
+
+#scatter figure with suplots to show the distribution of losses by month, colour min values per month red and max in blue. 1 with ordered by other and other without
+fig, ax = plt.subplots()
+scatter = ax.scatter(clean_data['month'], clean_data['APC'], c=clean_data['APC'], cmap='coolwarm')
+ax.set_xlabel('month')
+ax.set_ylabel('APC')
+ax.set_title('Min & Max losses by month')
+#rotate the x-axis labels
+ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+#add a color bar
+cbar = plt.colorbar(scatter)
+cbar.set_label('APC')
+plt.show()
+
+#plot losses of each variable in the data in a horizontal bar chart
